@@ -113,42 +113,175 @@
             left: 10px;
         }
 
-        /* Punteggio LCD */
+        /* Titolo Space Hunt */
+        #gameTitle {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Arial Black', 'Arial Bold', sans-serif;
+            font-size: 36px;
+            color: transparent;
+            text-shadow: 
+                0 0 10px #ff00ff,
+                0 0 20px #ff00ff,
+                0 0 30px #ff00ff,
+                0 0 40px #00ffff,
+                0 0 70px #00ffff,
+                0 0 80px #00ffff;
+            z-index: 200;
+            display: none;
+            letter-spacing: 3px;
+            filter: blur(0.5px);
+            animation: neonPulse 2s infinite alternate;
+        }
+
+        @keyframes neonPulse {
+            from {
+                text-shadow: 
+                    0 0 10px #ff00ff,
+                    0 0 20px #ff00ff,
+                    0 0 30px #ff00ff,
+                    0 0 40px #00ffff,
+                    0 0 70px #00ffff,
+                    0 0 80px #00ffff;
+            }
+            to {
+                text-shadow: 
+                    0 0 5px #ff00ff,
+                    0 0 10px #ff00ff,
+                    0 0 15px #ff00ff,
+                    0 0 20px #00ffff,
+                    0 0 35px #00ffff,
+                    0 0 40px #00ffff;
+            }
+        }
+
+        /* Punteggio LCD senza bordo */
         #scoreDisplay {
             position: absolute;
             top: 20px;
             right: 20px;
             font-family: 'Courier New', monospace;
-            font-size: 24px;
+            font-size: 28px;
             color: #00ff00;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px 15px;
-            border-radius: 5px;
-            border: 2px solid #00ff00;
-            text-shadow: 0 0 10px #00ff00;
+            background: transparent;
+            padding: 5px 10px;
             z-index: 200;
             display: none;
+            text-shadow: 0 0 10px #00ff00;
+            font-weight: bold;
+            letter-spacing: 2px;
         }
 
-        /* Asteroidi */
+        /* Timer */
+        #timer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 28px;
+            color: #00ff00;
+            background: transparent;
+            padding: 5px 10px;
+            z-index: 200;
+            display: none;
+            text-shadow: 0 0 10px #00ff00;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        /* Schermata Game Over */
+        #gameOver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #gameOver h2 {
+            font-size: 48px;
+            color: #ff0000;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        #gameOver p {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        #restartButton {
+            padding: 15px 30px;
+            font-size: 20px;
+            background: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #restartButton:active {
+            transform: scale(0.95);
+        }
+
+        /* Asteroidi - 5 diverse grandezze */
         .asteroid {
             position: absolute;
             border-radius: 50%;
-            background: #888888;
             z-index: 50;
+            background-size: cover;
+            animation: rotate 10s linear infinite;
         }
 
-        /* Oggetti da raccogliere */
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Tipi di asteroidi con dimensioni e colori diversi */
+        .asteroid.type1 { 
+            background: radial-gradient(circle at 30% 30%, #888888, #333333);
+            box-shadow: 0 0 5px #888888;
+        } /* Piccolo - 5 punti */
+        
+        .asteroid.type2 { 
+            background: radial-gradient(circle at 30% 30%, #996633, #553311);
+            box-shadow: 0 0 8px #996633;
+        } /* Medio - 10 punti */
+        
+        .asteroid.type3 { 
+            background: radial-gradient(circle at 30% 30%, #774422, #331100);
+            box-shadow: 0 0 10px #774422;
+        } /* Grande - 15 punti */
+        
+        .asteroid.type4 { 
+            background: radial-gradient(circle at 30% 30%, #663300, #221100);
+            box-shadow: 0 0 12px #663300;
+        } /* Molto Grande - 20 punti */
+        
+        .asteroid.type5 { 
+            background: radial-gradient(circle at 30% 30%, #552200, #110000);
+            box-shadow: 0 0 15px #552200;
+        } /* Enorme - 25 punti */
+
+        /* Oggetti da raccogliere - ora si muovono come le meteoriti */
         .collectible {
             position: absolute;
             border-radius: 50%;
             z-index: 60;
-            animation: float 2s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+            animation: rotate 8s linear infinite;
         }
 
         /* Tipi di oggetti con colori diversi */
@@ -208,7 +341,16 @@
     </div>
     
     <div id="spaceship"></div>
-    <div id="scoreDisplay">00000</div>
+    <div id="gameTitle">SPACE HUNT</div>
+    <div id="scoreDisplay">00050</div>
+    <div id="timer">00:00</div>
+    
+    <div id="gameOver">
+        <h2>GAME OVER</h2>
+        <p id="finalTime">Tempo: 00:00</p>
+        <p id="finalScore">Punteggio: 0</p>
+        <button id="restartButton">RIAVVIA</button>
+    </div>
 
     <script>
         const startButton = document.getElementById('startButton');
@@ -217,6 +359,12 @@
         const starsContainer = document.getElementById('starsContainer');
         const spaceship = document.getElementById('spaceship');
         const scoreDisplay = document.getElementById('scoreDisplay');
+        const gameTitle = document.getElementById('gameTitle');
+        const timerDisplay = document.getElementById('timer');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalTimeDisplay = document.getElementById('finalTime');
+        const finalScoreDisplay = document.getElementById('finalScore');
+        const restartButton = document.getElementById('restartButton');
 
         let audioContext = null;
         let isDragging = false;
@@ -224,8 +372,15 @@
         let spaceshipX, spaceshipY;
         let centerX, centerY;
         let animationId = null;
-        let score = 0;
+        let score = 50; // Punteggio iniziale di 50
         let gameActive = false;
+        let meteorMultiplier = 1; // Moltiplicatore per il numero di meteoriti
+        let lastDifficultyUpdate = 0; // Punteggio dell'ultimo aggiornamento difficoltà
+        
+        // Variabili per il timer
+        let startTime = 0;
+        let timerInterval = null;
+        let elapsedTime = 0;
         
         // Configurazione dei 5 layer di stelle
         const starLayers = [
@@ -271,18 +426,99 @@
             }
         ];
 
+        // Configurazione dei 5 tipi di asteroidi con variazione dimensionale aumentata del 100%
+        const asteroidTypes = [
+            { 
+                type: 1, 
+                sizeMin: 10, // Ridotto da 20 a 10 (variazione +100%)
+                sizeMax: 30, // Aumentato da 20 a 30 (variazione +100%)
+                speedMin: 1.5, 
+                speedMax: 2.5, 
+                damage: 5 
+            }, // Piccolo
+            { 
+                type: 2, 
+                sizeMin: 15, // Ridotto da 30 a 15 (variazione +100%)
+                sizeMax: 45, // Aumentato da 30 a 45 (variazione +100%)
+                speedMin: 1.2, 
+                speedMax: 2, 
+                damage: 10 
+            }, // Medio
+            { 
+                type: 3, 
+                sizeMin: 20, // Ridotto da 40 a 20 (variazione +100%)
+                sizeMax: 60, // Aumentato da 40 a 60 (variazione +100%)
+                speedMin: 1, 
+                speedMax: 1.8, 
+                damage: 15 
+            }, // Grande
+            { 
+                type: 4, 
+                sizeMin: 25, // Ridotto da 50 a 25 (variazione +100%)
+                sizeMax: 75, // Aumentato da 50 a 75 (variazione +100%)
+                speedMin: 0.8, 
+                speedMax: 1.5, 
+                damage: 20 
+            }, // Molto Grande
+            { 
+                type: 5, 
+                sizeMin: 30, // Ridotto da 60 a 30 (variazione +100%)
+                sizeMax: 90, // Aumentato da 60 a 90 (variazione +100%)
+                speedMin: 0.6, 
+                speedMax: 1.2, 
+                damage: 25 
+            }  // Enorme
+        ];
+
+        // Configurazione per i punti colorati (collectibles) con variazione dimensionale aumentata del 100%
+        const collectibleTypes = [
+            { 
+                type: 1, 
+                score: 10, 
+                speedMin: 0.8, 
+                speedMax: 1.5,
+                sizeMin: 6,  // Ridotto da 12 a 6 (variazione +100%)
+                sizeMax: 18  // Aumentato da 12 a 18 (variazione +100%)
+            },
+            { 
+                type: 2, 
+                score: 20, 
+                speedMin: 0.7, 
+                speedMax: 1.4,
+                sizeMin: 7,  // Ridotto da 14 a 7 (variazione +100%)
+                sizeMax: 21  // Aumentato da 14 a 21 (variazione +100%)
+            },
+            { 
+                type: 3, 
+                score: 50, 
+                speedMin: 0.6, 
+                speedMax: 1.3,
+                sizeMin: 8,  // Ridotto da 16 a 8 (variazione +100%)
+                sizeMax: 24  // Aumentato da 16 a 24 (variazione +100%)
+            },
+            { 
+                type: 4, 
+                score: 100, 
+                speedMin: 0.5, 
+                speedMax: 1.2,
+                sizeMin: 9,  // Ridotto da 18 a 9 (variazione +100%)
+                sizeMax: 27  // Aumentato da 18 a 27 (variazione +100%)
+            },
+            { 
+                type: 5, 
+                score: 200, 
+                speedMin: 0.4, 
+                speedMax: 1.1,
+                sizeMin: 10, // Ridotto da 20 a 10 (variazione +100%)
+                sizeMax: 30  // Aumentato da 20 a 30 (variazione +100%)
+            }
+        ];
+
         let starPositions = [];
         let asteroids = [];
         let collectibles = [];
-
-        // Punteggi per i diversi tipi di oggetti
-        const collectibleScores = {
-            type1: 10,
-            type2: 20,
-            type3: 50,
-            type4: 100,
-            type5: 200
-        };
+        let asteroidInterval = null;
+        let collectibleInterval = null;
 
         // Calcola il centro dello schermo
         function calculateCenter() {
@@ -293,6 +529,51 @@
         // Aggiorna il display del punteggio
         function updateScoreDisplay() {
             scoreDisplay.textContent = String(score).padStart(5, '0');
+            updateDifficulty();
+            
+            // Controlla se il gioco è finito (punteggio <= 0)
+            if (score <= 0 && gameActive) {
+                endGame();
+            }
+        }
+
+        // Aggiorna la difficoltà ogni 1000 punti
+        function updateDifficulty() {
+            const difficultyLevel = Math.floor(score / 1000);
+            
+            if (difficultyLevel > lastDifficultyUpdate) {
+                lastDifficultyUpdate = difficultyLevel;
+                meteorMultiplier = 1 + (difficultyLevel * 0.25); // Aumenta del 25% ogni 1000 punti
+                
+                // Effetto visivo per indicare aumento difficoltà
+                const originalColor = scoreDisplay.style.color;
+                scoreDisplay.style.color = '#ff0000';
+                setTimeout(() => {
+                    scoreDisplay.style.color = originalColor;
+                }, 500);
+            }
+        }
+
+        // Funzione per formattare il tempo in minuti e secondi
+        function formatTime(ms) {
+            const seconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        // Avvia il timer
+        function startTimer() {
+            startTime = Date.now() - elapsedTime;
+            timerInterval = setInterval(() => {
+                elapsedTime = Date.now() - startTime;
+                timerDisplay.textContent = formatTime(elapsedTime);
+            }, 1000);
+        }
+
+        // Ferma il timer
+        function stopTimer() {
+            clearInterval(timerInterval);
         }
 
         // Funzione per creare i layer di stelle
@@ -404,164 +685,241 @@
         function createAsteroid() {
             if (!gameActive) return;
             
-            const asteroid = document.createElement('div');
-            asteroid.className = 'asteroid';
+            // Calcola quanti asteroidi creare in base al moltiplicatore (16 base + 300% = 64)
+            const asteroidCount = Math.floor(16 * meteorMultiplier);
             
-            // Dimensione casuale tra 15 e 40 pixel
-            const size = 15 + Math.random() * 25;
-            
-            // Posizione iniziale casuale ai bordi dello schermo
-            const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
-            let left, top;
-            
-            switch(side) {
-                case 0: // top
-                    left = Math.random() * 100;
-                    top = -10;
-                    break;
-                case 1: // right
-                    left = 110;
-                    top = Math.random() * 100;
-                    break;
-                case 2: // bottom
-                    left = Math.random() * 100;
-                    top = 110;
-                    break;
-                case 3: // left
-                    left = -10;
-                    top = Math.random() * 100;
-                    break;
+            for (let i = 0; i < asteroidCount; i++) {
+                const asteroid = document.createElement('div');
+                asteroid.className = 'asteroid';
+                
+                // Sceglie casualmente un tipo di asteroide
+                const asteroidType = asteroidTypes[Math.floor(Math.random() * asteroidTypes.length)];
+                asteroid.classList.add('type' + asteroidType.type);
+                
+                // Dimensione casuale nell'intervallo aumentato del 100%
+                const size = asteroidType.sizeMin + Math.random() * (asteroidType.sizeMax - asteroidType.sizeMin);
+                
+                // Posizione iniziale casuale ai bordi dello schermo
+                const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+                let left, top;
+                
+                switch(side) {
+                    case 0: // top
+                        left = Math.random() * 100;
+                        top = -10;
+                        break;
+                    case 1: // right
+                        left = 110;
+                        top = Math.random() * 100;
+                        break;
+                    case 2: // bottom
+                        left = Math.random() * 100;
+                        top = 110;
+                        break;
+                    case 3: // left
+                        left = -10;
+                        top = Math.random() * 100;
+                        break;
+                }
+                
+                // Velocità casuale in base al tipo di asteroide
+                const speed = asteroidType.speedMin + Math.random() * (asteroidType.speedMax - asteroidType.speedMin);
+                
+                // Direzione costante (non cambia più)
+                const angle = Math.random() * Math.PI * 2;
+                const velocityX = Math.cos(angle) * speed;
+                const velocityY = Math.sin(angle) * speed;
+                
+                asteroid.style.width = size + 'px';
+                asteroid.style.height = size + 'px';
+                asteroid.style.left = left + '%';
+                asteroid.style.top = top + '%';
+                
+                document.body.appendChild(asteroid);
+                
+                asteroids.push({
+                    element: asteroid,
+                    x: left,
+                    y: top,
+                    size: size,
+                    velocityX: velocityX,
+                    velocityY: velocityY,
+                    damage: asteroidType.damage
+                });
             }
-            
-            // Velocità casuale
-            const speed = 0.5 + Math.random() * 1.5;
-            
-            // Direzione verso un punto casuale all'interno dello schermo
-            const targetX = 25 + Math.random() * 50;
-            const targetY = 25 + Math.random() * 50;
-            
-            asteroid.style.width = size + 'px';
-            asteroid.style.height = size + 'px';
-            asteroid.style.left = left + '%';
-            asteroid.style.top = top + '%';
-            asteroid.style.background = `hsl(${Math.random() * 30 + 20}, 30%, ${Math.random() * 20 + 30}%)`;
-            
-            document.body.appendChild(asteroid);
-            
-            asteroids.push({
-                element: asteroid,
-                x: left,
-                y: top,
-                size: size,
-                speed: speed,
-                targetX: targetX,
-                targetY: targetY
-            });
         }
 
-        // Crea un oggetto da raccogliere
+        // Crea un oggetto da raccogliere (punti colorati)
         function createCollectible() {
             if (!gameActive) return;
             
-            const collectible = document.createElement('div');
-            collectible.className = 'collectible';
-            
-            // Tipo casuale (1-5)
-            const type = Math.floor(Math.random() * 5) + 1;
-            collectible.classList.add('type' + type);
-            
-            // Dimensione tra 8 e 15 pixel
-            const size = 8 + Math.random() * 7;
-            
-            // Posizione casuale
-            const left = 10 + Math.random() * 80;
-            const top = 10 + Math.random() * 80;
-            
-            collectible.style.width = size + 'px';
-            collectible.style.height = size + 'px';
-            collectible.style.left = left + '%';
-            collectible.style.top = top + '%';
-            
-            document.body.appendChild(collectible);
-            
-            collectibles.push({
-                element: collectible,
-                x: left,
-                y: top,
-                size: size,
-                type: 'type' + type
-            });
+            // Crea 2 punti colorati invece di 1 (aumento del 100%)
+            for (let j = 0; j < 2; j++) {
+                const collectible = document.createElement('div');
+                collectible.className = 'collectible';
+                
+                // Tipo casuale (1-5)
+                const typeIndex = Math.floor(Math.random() * collectibleTypes.length);
+                const collectibleType = collectibleTypes[typeIndex];
+                collectible.classList.add('type' + collectibleType.type);
+                
+                // Dimensione casuale nell'intervallo aumentato del 100%
+                const size = collectibleType.sizeMin + Math.random() * (collectibleType.sizeMax - collectibleType.sizeMin);
+                
+                // Posizione iniziale casuale ai bordi dello schermo (come le meteoriti)
+                const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+                let left, top;
+                
+                switch(side) {
+                    case 0: // top
+                        left = Math.random() * 100;
+                        top = -5;
+                        break;
+                    case 1: // right
+                        left = 105;
+                        top = Math.random() * 100;
+                        break;
+                    case 2: // bottom
+                        left = Math.random() * 100;
+                        top = 105;
+                        break;
+                    case 3: // left
+                        left = -5;
+                        top = Math.random() * 100;
+                        break;
+                }
+                
+                // Velocità casuale in base al tipo di collectible
+                const speed = collectibleType.speedMin + Math.random() * (collectibleType.speedMax - collectibleType.speedMin);
+                
+                // Direzione costante (come le meteoriti)
+                const angle = Math.random() * Math.PI * 2;
+                const velocityX = Math.cos(angle) * speed;
+                const velocityY = Math.sin(angle) * speed;
+                
+                collectible.style.width = size + 'px';
+                collectible.style.height = size + 'px';
+                collectible.style.left = left + '%';
+                collectible.style.top = top + '%';
+                
+                document.body.appendChild(collectible);
+                
+                collectibles.push({
+                    element: collectible,
+                    x: left,
+                    y: top,
+                    type: 'type' + collectibleType.type,
+                    score: collectibleType.score,
+                    velocityX: velocityX,
+                    velocityY: velocityY
+                });
+            }
         }
 
-        // Aggiorna la posizione degli asteroidi
+        // Aggiorna la posizione degli asteroidi (movimento lineare)
         function updateAsteroids() {
             for (let i = asteroids.length - 1; i >= 0; i--) {
                 const asteroid = asteroids[i];
                 
-                // Calcola la direzione verso il target
-                const dx = asteroid.targetX - asteroid.x;
-                const dy = asteroid.targetY - asteroid.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                // Muovi l'asteroide
-                if (distance > 1) {
-                    asteroid.x += (dx / distance) * asteroid.speed;
-                    asteroid.y += (dy / distance) * asteroid.speed;
-                } else {
-                    // Se ha raggiunto il target, scegline uno nuovo
-                    asteroid.targetX = 25 + Math.random() * 50;
-                    asteroid.targetY = 25 + Math.random() * 50;
-                }
+                // Muovi l'asteroide con velocità costante
+                asteroid.x += asteroid.velocityX;
+                asteroid.y += asteroid.velocityY;
                 
                 // Aggiorna la posizione
                 asteroid.element.style.left = asteroid.x + '%';
                 asteroid.element.style.top = asteroid.y + '%';
                 
                 // Rimuovi se fuori dallo schermo
-                if (asteroid.x < -10 || asteroid.x > 110 || asteroid.y < -10 || asteroid.y > 110) {
+                if (asteroid.x < -20 || asteroid.x > 120 || asteroid.y < -20 || asteroid.y > 120) {
                     asteroid.element.remove();
                     asteroids.splice(i, 1);
                 }
             }
         }
 
-        // Rileva collisioni
+        // Aggiorna la posizione dei punti colorati (movimento lineare come le meteoriti)
+        function updateCollectibles() {
+            for (let i = collectibles.length - 1; i >= 0; i--) {
+                const collectible = collectibles[i];
+                
+                // Muovi il collectible con velocità costante
+                collectible.x += collectible.velocityX;
+                collectible.y += collectible.velocityY;
+                
+                // Aggiorna la posizione
+                collectible.element.style.left = collectible.x + '%';
+                collectible.element.style.top = collectible.y + '%';
+                
+                // Rimuovi se fuori dallo schermo
+                if (collectible.x < -10 || collectible.x > 110 || collectible.y < -10 || collectible.y > 110) {
+                    collectible.element.remove();
+                    collectibles.splice(i, 1);
+                }
+            }
+        }
+
+        // Funzione per ottenere le coordinate reali di un elemento
+        function getElementBounds(element) {
+            const rect = element.getBoundingClientRect();
+            return {
+                left: rect.left,
+                right: rect.right,
+                top: rect.top,
+                bottom: rect.bottom,
+                width: rect.width,
+                height: rect.height,
+                centerX: rect.left + rect.width / 2,
+                centerY: rect.top + rect.height / 2
+            };
+        }
+
+        // Rileva collisioni con hitbox precisa basata sulle coordinate reali
         function checkCollisions() {
-            const shipSize = 20; // Raggio approssimativo della navicella
+            // Ottieni i bounds reali della navicella
+            const shipBounds = getElementBounds(spaceship);
             
             // Controlla collisioni con asteroidi
             for (let i = asteroids.length - 1; i >= 0; i--) {
                 const asteroid = asteroids[i];
-                const asteroidSize = asteroid.size / 2;
+                const asteroidBounds = getElementBounds(asteroid.element);
                 
-                // Distanza tra navicella e asteroide
-                const dx = (spaceshipX / window.innerWidth * 100) - asteroid.x;
-                const dy = (spaceshipY / window.innerHeight * 100) - asteroid.y;
+                // Calcola la distanza tra i centri
+                const dx = shipBounds.centerX - asteroidBounds.centerX;
+                const dy = shipBounds.centerY - asteroidBounds.centerY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance < shipSize + asteroidSize) {
-                    // Collisione con asteroide
+                // Calcola la distanza minima per la collisione (somma dei raggi)
+                const minDistance = (shipBounds.width / 2) + (asteroidBounds.width / 2);
+                
+                // Se la distanza è minore della distanza minima, c'è collisione
+                if (distance < minDistance) {
+                    // Collisione con asteroide - toglie punti in base alla grandezza
                     playCollisionSound();
+                    score = Math.max(0, score - asteroid.damage); // Impedisce punteggio negativo
+                    updateScoreDisplay();
                     asteroid.element.remove();
                     asteroids.splice(i, 1);
-                    // Qui potresti aggiungere una logica di game over
                 }
             }
             
             // Controlla collisioni con oggetti da raccogliere
             for (let i = collectibles.length - 1; i >= 0; i--) {
                 const collectible = collectibles[i];
-                const collectibleSize = collectible.size / 2;
+                const collectibleBounds = getElementBounds(collectible.element);
                 
-                // Distanza tra navicella e oggetto
-                const dx = (spaceshipX / window.innerWidth * 100) - collectible.x;
-                const dy = (spaceshipY / window.innerHeight * 100) - collectible.y;
+                // Calcola la distanza tra i centri
+                const dx = shipBounds.centerX - collectibleBounds.centerX;
+                const dy = shipBounds.centerY - collectibleBounds.centerY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance < shipSize + collectibleSize) {
+                // Calcola la distanza minima per la collisione (somma dei raggi)
+                const minDistance = (shipBounds.width / 2) + (collectibleBounds.width / 2);
+                
+                // Se la distanza è minore della distanza minima, c'è collisione
+                if (distance < minDistance) {
                     // Raccolta oggetto
                     playCollectSound();
-                    score += collectibleScores[collectible.type];
+                    score += collectible.score;
                     updateScoreDisplay();
                     collectible.element.remove();
                     collectibles.splice(i, 1);
@@ -571,8 +929,11 @@
 
         // Loop di animazione per il movimento continuo delle stelle
         function gameLoop() {
+            if (!gameActive) return;
+            
             updateStarPositions();
             updateAsteroids();
+            updateCollectibles();
             checkCollisions();
             animationId = requestAnimationFrame(gameLoop);
         }
@@ -682,6 +1043,56 @@
             }
         }
 
+        // Funzione per terminare il gioco
+        function endGame() {
+            gameActive = false;
+            stopTimer();
+            stopAnimation();
+            
+            // Ferma la generazione di asteroidi e punti colorati
+            clearInterval(asteroidInterval);
+            clearInterval(collectibleInterval);
+            
+            // Nascondi gli elementi di gioco
+            spaceship.style.display = 'none';
+            scoreDisplay.style.display = 'none';
+            timerDisplay.style.display = 'none';
+            gameTitle.style.display = 'none';
+            
+            // Mostra la schermata di game over
+            finalTimeDisplay.textContent = `Tempo: ${formatTime(elapsedTime)}`;
+            finalScoreDisplay.textContent = `Punteggio: ${score}`;
+            gameOverScreen.style.display = 'flex';
+        }
+
+        // Funzione per riavviare il gioco
+        function restartGame() {
+            // Nascondi la schermata di game over
+            gameOverScreen.style.display = 'none';
+            
+            // Rimuovi tutti gli asteroidi e punti colorati
+            asteroids.forEach(asteroid => asteroid.element.remove());
+            asteroids = [];
+            collectibles.forEach(collectible => collectible.element.remove());
+            collectibles = [];
+            
+            // Resetta le variabili di gioco
+            score = 50;
+            meteorMultiplier = 1;
+            lastDifficultyUpdate = 0;
+            elapsedTime = 0;
+            
+            // Ripristina gli elementi di gioco
+            scoreDisplay.style.display = 'block';
+            timerDisplay.style.display = 'block';
+            gameTitle.style.display = 'block';
+            updateScoreDisplay();
+            timerDisplay.textContent = '00:00';
+            
+            // Riavvia il gioco
+            startExperience();
+        }
+
         // Funzione per inizializzare la navicella
         function initSpaceship() {
             calculateCenter();
@@ -697,8 +1108,11 @@
             gameLoop();
             
             // Avvia la generazione di asteroidi e oggetti
-            setInterval(createAsteroid, 2000); // Ogni 2 secondi
-            setInterval(createCollectible, 3000); // Ogni 3 secondi
+            asteroidInterval = setInterval(createAsteroid, 2000); // Ogni 2 secondi (numero variabile di asteroidi)
+            collectibleInterval = setInterval(createCollectible, 3000); // Ogni 3 secondi (2 punti colorati per chiamata)
+            
+            // Avvia il timer
+            startTimer();
             
             // Aggiungi event listeners per il drag
             spaceship.addEventListener('mousedown', startDrag);
@@ -776,6 +1190,8 @@
                 imageContainer.classList.remove('visible');
                 starsContainer.classList.add('visible');
                 scoreDisplay.style.display = 'block';
+                gameTitle.style.display = 'block';
+                timerDisplay.style.display = 'block';
                 updateScoreDisplay();
                 initSpaceship();
             }, 3000);
@@ -788,6 +1204,9 @@
         // Aggiunge l'event listener al pulsante
         startButton.addEventListener('click', startExperience);
         startButton.addEventListener('touchend', startExperience);
+
+        // Aggiunge l'event listener al pulsante di riavvio
+        restartButton.addEventListener('click', restartGame);
 
         // Previene completamente lo scrolling
         document.body.addEventListener('touchmove', function(e) {
