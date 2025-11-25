@@ -74,6 +74,14 @@
             transition: opacity 1s;
         }
 
+        .star-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
         .star {
             position: absolute;
             background: white;
@@ -88,7 +96,7 @@
             border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
             box-shadow: 0 0 10px #ff9900;
-            z-index: 5;
+            z-index: 100;
             display: none;
             cursor: move;
             transition: transform 0.1s;
@@ -150,7 +158,9 @@
              id="expandingImage">
     </div>
 
-    <div class="stars-container" id="starsContainer"></div>
+    <div class="stars-container" id="starsContainer">
+        <!-- I 5 layer di stelle verranno creati dinamicamente -->
+    </div>
     <div id="spaceship"></div>
 
     <script>
@@ -164,47 +174,104 @@
         let isDragging = false;
         let dragStartX, dragStartY;
         let spaceshipX, spaceshipY;
+        
+        // Configurazione dei 5 layer di stelle
+        const starLayers = [
+            { 
+                count: 400, 
+                sizeMin: 1, 
+                sizeMax: 1.5, 
+                speed: 0.3, 
+                opacity: 0.6,
+                color: '#ffffff'
+            }, // Layer 1: Stelle lontane, piccole, movimento lento
+            { 
+                count: 300, 
+                sizeMin: 1.2, 
+                sizeMax: 2, 
+                speed: 0.5, 
+                opacity: 0.7,
+                color: '#f0f0f0'
+            }, // Layer 2
+            { 
+                count: 200, 
+                sizeMin: 1.5, 
+                sizeMax: 2.5, 
+                speed: 0.7, 
+                opacity: 0.8,
+                color: '#e8e8e8'
+            }, // Layer 3
+            { 
+                count: 150, 
+                sizeMin: 2, 
+                sizeMax: 3, 
+                speed: 0.9, 
+                opacity: 0.9,
+                color: '#e0e0e0'
+            }, // Layer 4
+            { 
+                count: 100, 
+                sizeMin: 2.5, 
+                sizeMax: 4, 
+                speed: 1.2, 
+                opacity: 1,
+                color: '#ffffff'
+            }  // Layer 5: Stelle vicine, grandi, movimento veloce
+        ];
+
         let starPositions = [];
 
-        // Funzione per creare le stelle
+        // Funzione per creare i layer di stelle
         function createStars() {
-            const starCount = 300;
-            const fragment = document.createDocumentFragment();
+            starsContainer.innerHTML = '';
             starPositions = [];
             
-            for (let i = 0; i < starCount; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
+            starLayers.forEach((layer, layerIndex) => {
+                const layerElement = document.createElement('div');
+                layerElement.className = 'star-layer';
+                layerElement.style.zIndex = layerIndex + 1;
                 
-                // Posizione casuale
-                const left = Math.random() * 100;
-                const top = Math.random() * 100;
+                const fragment = document.createDocumentFragment();
                 
-                // Dimensione casuale (1-3 pixel)
-                const size = 1 + Math.random() * 2;
+                for (let i = 0; i < layer.count; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    
+                    // Posizione casuale
+                    const left = Math.random() * 100;
+                    const top = Math.random() * 100;
+                    
+                    // Dimensione casuale in base al layer
+                    const size = layer.sizeMin + Math.random() * (layer.sizeMax - layer.sizeMin);
+                    
+                    // Salva la posizione originale per il movimento
+                    starPositions.push({
+                        element: star,
+                        originalLeft: left,
+                        originalTop: top,
+                        speed: layer.speed,
+                        layer: layerIndex
+                    });
+                    
+                    // Applica le proprietà
+                    star.style.left = left + '%';
+                    star.style.top = top + '%';
+                    star.style.width = size + 'px';
+                    star.style.height = size + 'px';
+                    star.style.background = layer.color;
+                    star.style.opacity = layer.opacity;
+                    
+                    // Animazione di scintillio casuale
+                    const duration = 2 + Math.random() * 4;
+                    const delay = Math.random() * 5;
+                    star.style.animation = `twinkle ${duration}s infinite ${delay}s`;
+                    
+                    fragment.appendChild(star);
+                }
                 
-                // Salva la posizione originale per il movimento
-                starPositions.push({
-                    element: star,
-                    originalLeft: left,
-                    originalTop: top
-                });
-                
-                // Applica le proprietà
-                star.style.left = left + '%';
-                star.style.top = top + '%';
-                star.style.width = size + 'px';
-                star.style.height = size + 'px';
-                
-                // Animazione di scintillio casuale
-                const duration = 2 + Math.random() * 4;
-                const delay = Math.random() * 5;
-                star.style.animation = `twinkle ${duration}s infinite ${delay}s`;
-                
-                fragment.appendChild(star);
-            }
-            
-            starsContainer.appendChild(fragment);
+                layerElement.appendChild(fragment);
+                starsContainer.appendChild(layerElement);
+            });
         }
 
         // Funzione per aggiornare la posizione delle stelle in base alla navicella
@@ -216,10 +283,11 @@
             const offsetX = (spaceshipX - centerX) / 50;
             const offsetY = (spaceshipY - centerY) / 50;
             
-            // Aggiorna ogni stella
+            // Aggiorna ogni stella con la velocità del suo layer
             starPositions.forEach(star => {
-                const newLeft = (star.originalLeft + offsetX) % 100;
-                const newTop = (star.originalTop + offsetY) % 100;
+                const speedMultiplier = star.speed;
+                const newLeft = (star.originalLeft + offsetX * speedMultiplier) % 100;
+                const newTop = (star.originalTop + offsetY * speedMultiplier) % 100;
                 
                 // Se la stella esce dallo schermo, riappare dall'altra parte
                 star.element.style.left = (newLeft < 0 ? newLeft + 100 : newLeft) + '%';
