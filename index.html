@@ -218,7 +218,7 @@
 
         #gameOver p {
             font-size: 24px;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
         }
 
         #restartButton {
@@ -230,6 +230,7 @@
             border-radius: 10px;
             cursor: pointer;
             transition: transform 0.2s;
+            margin-top: 20px;
         }
 
         #restartButton:active {
@@ -348,8 +349,9 @@
     <div id="gameOver">
         <h2>GAME OVER</h2>
         <p id="finalTime">Tempo: 00:00</p>
-        <p id="finalScore">Punteggio: 0</p>
-        <button id="restartButton">RIAVVIA</button>
+        <p id="finalScore">Punteggio Finale: 0</p>
+        <p id="maxScore">Punteggio Massimo: 0</p>
+        <button id="restartButton">Restart</button>
     </div>
 
     <script>
@@ -364,6 +366,7 @@
         const gameOverScreen = document.getElementById('gameOver');
         const finalTimeDisplay = document.getElementById('finalTime');
         const finalScoreDisplay = document.getElementById('finalScore');
+        const maxScoreDisplay = document.getElementById('maxScore');
         const restartButton = document.getElementById('restartButton');
 
         let audioContext = null;
@@ -373,6 +376,7 @@
         let centerX, centerY;
         let animationId = null;
         let score = 50; // Punteggio iniziale di 50
+        let maxScore = 50; // Punteggio massimo, inizializzato a 50
         let gameActive = false;
         let meteorMultiplier = 1; // Moltiplicatore per il numero di meteoriti
         let lastDifficultyUpdate = 0; // Punteggio dell'ultimo aggiornamento difficoltà
@@ -414,7 +418,6 @@
                 sizeMax: 3, 
                 speed: 0.2, 
                 opacity: 0.9,
-                color: '#e0e0e0'
             },
             { 
                 count: 100, 
@@ -529,6 +532,12 @@
         // Aggiorna il display del punteggio
         function updateScoreDisplay() {
             scoreDisplay.textContent = String(score).padStart(5, '0');
+            
+            // Aggiorna il punteggio massimo se necessario
+            if (score > maxScore) {
+                maxScore = score;
+            }
+            
             updateDifficulty();
             
             // Controlla se il gioco è finito (punteggio <= 0)
@@ -1061,7 +1070,8 @@
             
             // Mostra la schermata di game over
             finalTimeDisplay.textContent = `Tempo: ${formatTime(elapsedTime)}`;
-            finalScoreDisplay.textContent = `Punteggio: ${score}`;
+            finalScoreDisplay.textContent = `Punteggio Finale: ${score}`;
+            maxScoreDisplay.textContent = `Punteggio Massimo: ${maxScore}`;
             gameOverScreen.style.display = 'flex';
         }
 
@@ -1078,6 +1088,7 @@
             
             // Resetta le variabili di gioco
             score = 50;
+            maxScore = 50; // Resetta anche il punteggio massimo
             meteorMultiplier = 1;
             lastDifficultyUpdate = 0;
             elapsedTime = 0;
