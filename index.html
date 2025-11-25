@@ -174,6 +174,8 @@
         let isDragging = false;
         let dragStartX, dragStartY;
         let spaceshipX, spaceshipY;
+        let centerX, centerY;
+        let animationId = null;
         
         // Configurazione dei 5 layer di stelle
         const starLayers = [
@@ -181,45 +183,51 @@
                 count: 400, 
                 sizeMin: 1, 
                 sizeMax: 1.5, 
-                speed: 0.3, 
+                speed: 0.05, 
                 opacity: 0.6,
                 color: '#ffffff'
-            }, // Layer 1: Stelle lontane, piccole, movimento lento
+            },
             { 
                 count: 300, 
                 sizeMin: 1.2, 
                 sizeMax: 2, 
-                speed: 0.5, 
+                speed: 0.1, 
                 opacity: 0.7,
                 color: '#f0f0f0'
-            }, // Layer 2
+            },
             { 
                 count: 200, 
                 sizeMin: 1.5, 
                 sizeMax: 2.5, 
-                speed: 0.7, 
+                speed: 0.15, 
                 opacity: 0.8,
                 color: '#e8e8e8'
-            }, // Layer 3
+            },
             { 
                 count: 150, 
                 sizeMin: 2, 
                 sizeMax: 3, 
-                speed: 0.9, 
+                speed: 0.2, 
                 opacity: 0.9,
                 color: '#e0e0e0'
-            }, // Layer 4
+            },
             { 
                 count: 100, 
                 sizeMin: 2.5, 
                 sizeMax: 4, 
-                speed: 1.2, 
+                speed: 0.25, 
                 opacity: 1,
                 color: '#ffffff'
-            }  // Layer 5: Stelle vicine, grandi, movimento veloce
+            }
         ];
 
         let starPositions = [];
+
+        // Calcola il centro dello schermo
+        function calculateCenter() {
+            centerX = window.innerWidth / 2;
+            centerY = window.innerHeight / 2;
+        }
 
         // Funzione per creare i layer di stelle
         function createStars() {
@@ -274,58 +282,96 @@
             });
         }
 
-        // Funzione per aggiornare la posizione delle stelle in base alla navicella
-        function updateStarPositions() {
-            // Calcola lo spostamento in base alla posizione della navicella
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
+        // Funzione per calcolare la velocità in base alla posizione della navicella
+        function calculateVelocity() {
+            if (!spaceshipX || !spaceshipY) return { x: 0, y: 0 };
             
-            const offsetX = (spaceshipX - centerX) / 50;
-            const offsetY = (spaceshipY - centerY) / 50;
+            // Calcola la distanza dal centro (0 al centro, 1 ai bordi)
+            const maxDistance = Math.min(centerX, centerY);
+            const distanceX = (spaceshipX - centerX) / maxDistance;
+            const distanceY = (spaceshipY - centerY) / maxDistance;
+            
+            // Calcola la velocità in base alla distanza (più vicino al centro = meno velocità)
+            const speed = Math.min(1, Math.sqrt(distanceX * distanceX + distanceY * distanceY));
+            
+            // Direzione del movimento (opposta alla posizione della navicella)
+            return {
+                x: -distanceX * speed,
+                y: -distanceY * speed
+            };
+        }
+
+        // Funzione per aggiornare la posizione delle stelle
+        function updateStarPositions() {
+            const velocity = calculateVelocity();
+            
+            // Se non c'è movimento, non aggiornare le stelle
+            if (velocity.x === 0 && velocity.y === 0) return;
             
             // Aggiorna ogni stella con la velocità del suo layer
             starPositions.forEach(star => {
-                const speedMultiplier = star.speed;
-                const newLeft = (star.originalLeft + offsetX * speedMultiplier) % 100;
-                const newTop = (star.originalTop + offsetY * speedMultiplier) % 100;
+                const layerSpeed = star.speed;
+                const moveX = velocity.x * layerSpeed * 2;
+                const moveY = velocity.y * layerSpeed * 2;
                 
-                // Se la stella esce dallo schermo, riappare dall'altra parte
-                star.element.style.left = (newLeft < 0 ? newLeft + 100 : newLeft) + '%';
-                star.element.style.top = (newTop < 0 ? newTop + 100 : newTop) + '%';
+                // Applica lo spostamento alla posizione originale
+                let newLeft = (parseFloat(star.originalLeft) + moveX) % 100;
+                let newTop = (parseFloat(star.originalTop) + moveY) % 100;
+                
+                // Gestisce il wraparound delle stelle
+                if (newLeft < 0) newLeft += 100;
+                if (newLeft > 100) newLeft -= 100;
+                if (newTop < 0) newTop += 100;
+                if (newTop > 100) newTop -= 100;
+                
+                // Aggiorna la posizione della stella
+                star.element.style.left = newLeft + '%';
+                star.element.style.top = newTop + '%';
+                
+                // Aggiorna la posizione originale per il movimento continuo
+                star.originalLeft = newLeft;
+                star.originalTop = newTop;
             });
+        }
+
+        // Loop di animazione per il movimento continuo delle stelle
+        function animateStars() {
+            updateStarPositions();
+            animationId = requestAnimationFrame(animateStars);
+        }
+
+        // Ferma l'animazione delle stelle
+        function stopAnimation() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
         }
 
         // Funzione per creare e riprodurre il suono
         function createAndPlaySound() {
             try {
-                // Crea o riusa il contesto audio
                 if (!audioContext) {
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 }
                 
-                // Se il contesto è sospeso, riprendilo
                 if (audioContext.state === 'suspended') {
                     audioContext.resume();
                 }
                 
-                // Crea gli elementi audio
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
                 
-                // Configura l'oscillatore
                 oscillator.type = 'sine';
                 oscillator.frequency.setValueAtTime(330, audioContext.currentTime);
                 oscillator.frequency.exponentialRampToValueAtTime(1320, audioContext.currentTime + 2.5);
                 
-                // Configura il volume
                 gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 3);
                 
-                // Connessioni
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
-                // Avvia e ferma
                 oscillator.start();
                 oscillator.stop(audioContext.currentTime + 3);
                 
@@ -336,13 +382,16 @@
 
         // Funzione per inizializzare la navicella
         function initSpaceship() {
-            // Posizione iniziale al centro
-            spaceshipX = window.innerWidth / 2;
-            spaceshipY = window.innerHeight / 2;
+            calculateCenter();
+            spaceshipX = centerX;
+            spaceshipY = centerY;
             
             spaceship.style.left = (spaceshipX - 20) + 'px';
             spaceship.style.top = (spaceshipY - 20) + 'px';
             spaceship.style.display = 'block';
+            
+            // Avvia l'animazione delle stelle
+            animateStars();
             
             // Aggiungi event listeners per il drag
             spaceship.addEventListener('mousedown', startDrag);
@@ -395,9 +444,6 @@
             // Aggiorna la posizione della navicella
             spaceship.style.left = (spaceshipX - 20) + 'px';
             spaceship.style.top = (spaceshipY - 20) + 'px';
-            
-            // Aggiorna le stelle per l'effetto di movimento
-            updateStarPositions();
         }
 
         // Funzione per fermare il drag
@@ -412,20 +458,13 @@
 
         // Funzione per avviare l'esperienza
         function startExperience() {
-            // Nasconde il pulsante
             startButton.style.display = 'none';
-            
-            // Mostra l'immagine e avvia l'animazione
             imageContainer.classList.add('visible');
             expandingImage.classList.add('expanding');
             
-            // Avvia il suono
             createAndPlaySound();
-            
-            // Crea le stelle
             createStars();
             
-            // Dopo 3 secondi mostra le stelle e la navicella
             setTimeout(() => {
                 imageContainer.classList.remove('visible');
                 starsContainer.classList.add('visible');
@@ -433,8 +472,9 @@
             }, 3000);
         }
 
-        // Inizializza le stelle all'avvio (ma nascoste)
+        // Inizializza le stelle all'avvio
         createStars();
+        calculateCenter();
 
         // Aggiunge l'event listener al pulsante
         startButton.addEventListener('click', startExperience);
@@ -461,16 +501,30 @@
             document.body.style.height = window.innerHeight + 'px';
             document.body.style.width = window.innerWidth + 'px';
             
-            // Se la navicella è già inizializzata, riposizionala
+            calculateCenter();
+            
             if (spaceship.style.display !== 'none') {
-                initSpaceship();
+                // Riposiziona la navicella mantenendo la proporzione rispetto al centro
+                const relativeX = spaceshipX - centerX;
+                const relativeY = spaceshipY - centerY;
+                
+                calculateCenter(); // Ricalcola il nuovo centro
+                
+                spaceshipX = centerX + relativeX;
+                spaceshipY = centerY + relativeY;
+                
+                // Mantieni dentro i bordi
+                spaceshipX = Math.max(20, Math.min(window.innerWidth - 20, spaceshipX));
+                spaceshipY = Math.max(20, Math.min(window.innerHeight - 20, spaceshipY));
+                
+                spaceship.style.left = (spaceshipX - 20) + 'px';
+                spaceship.style.top = (spaceshipY - 20) + 'px';
             }
         }
 
         window.addEventListener('resize', adjustSize);
         window.addEventListener('orientationchange', adjustSize);
         
-        // Inizializza
         adjustSize();
 
         // Pre-carica l'immagine
