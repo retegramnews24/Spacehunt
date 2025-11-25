@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mini App Telegram</title>
+    <title>Spacehunt</title>
     <style>
         * {
             margin: 0;
@@ -13,244 +13,401 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #ffffff;
-            color: #333333;
-            line-height: 1.4;
             width: 100vw;
             height: 100vh;
             overflow: hidden;
             position: fixed;
             top: 0;
             left: 0;
-            border: 1px solid #0088cc;
-        }
-
-        .app-container {
-            width: 100%;
-            height: 100%;
-            padding: 10px;
-            overflow-y: auto;
+            border: 3px solid #003366;
+            background: #000000;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
         }
 
-        .header {
-            text-align: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #e0e0e0;
-            margin-bottom: 15px;
-            flex-shrink: 0;
-        }
-
-        .content {
-            flex: 1;
-            overflow-y: auto;
-            padding-bottom: 10px;
-        }
-
-        .card {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
+        #startButton {
+            padding: 20px 40px;
+            font-size: 24px;
             background: #0088cc;
             color: white;
-            font-size: 16px;
-            margin: 4px 0;
+            border: none;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            min-height: 44px;
+            z-index: 10;
+            transition: transform 0.2s;
+            font-family: Arial, sans-serif;
         }
 
-        .btn:active {
-            background: #006699;
-            transform: scale(0.98);
+        #startButton:active {
+            transform: scale(0.95);
         }
 
-        .btn-secondary {
-            background: #6c757d;
-        }
-
-        .btn-secondary:active {
-            background: #545b62;
-        }
-
-        .input-group {
-            margin: 12px 0;
-        }
-
-        input, select, textarea {
+        .image-container {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            margin: 4px 0;
-            background: white;
-            min-height: 44px;
-        }
-
-        .list-item {
-            padding: 14px 12px;
-            border-bottom: 1px solid #eee;
+            height: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            min-height: 52px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
         }
 
-        .list-item:last-child {
-            border-bottom: none;
+        .centered-image {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
         }
 
-        .footer {
-            padding: 10px 0;
-            border-top: 1px solid #e0e0e0;
-            margin-top: 10px;
-            flex-shrink: 0;
-            text-align: center;
+        .stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s;
         }
 
-        /* Scrollbar personalizzata per mobile */
-        ::-webkit-scrollbar {
-            width: 4px;
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 2px;
+        #spaceship {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #ff9900;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 0 10px #ff9900;
+            z-index: 5;
+            display: none;
+            cursor: move;
+            transition: transform 0.1s;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 2px;
+        #spaceship::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ffcc00;
+            border-radius: 50%;
+            top: 10px;
+            left: 10px;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-
-        /* Ottimizzazioni per schermi molto piccoli */
-        @media (max-height: 600px) {
-            .header {
-                padding: 10px 0;
-                margin-bottom: 10px;
+        /* Animazioni */
+        @keyframes expandAndFade {
+            0% {
+                transform: scale(1);
+                opacity: 1;
             }
-            
-            .card {
-                padding: 8px;
-                margin-bottom: 8px;
+            70% {
+                transform: scale(3);
+                opacity: 0.8;
             }
-            
-            .btn {
-                padding: 12px;
-                min-height: 40px;
+            100% {
+                transform: scale(5);
+                opacity: 0;
             }
         }
 
-        @media (max-width: 320px) {
-            .app-container {
-                padding: 8px;
-            }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .expanding {
+            animation: expandAndFade 3s ease-in-out forwards;
+        }
+
+        .visible {
+            opacity: 1 !important;
+        }
+
+        /* Previene lo zoom su doppio tap */
+        * {
+            touch-action: manipulation;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="header">
-            <h1>📱 La Mia App</h1>
-            <p style="font-size: 14px; color: #666; margin-top: 5px;">Versione 1.0</p>
-        </div>
-
-        <div class="content">
-            <div class="card">
-                <div class="input-group">
-                    <input type="text" placeholder="Inserisci testo..." id="textInput">
-                </div>
-                <button class="btn" onclick="handleAction()">Azione Principale</button>
-                <button class="btn btn-secondary" onclick="secondaryAction()">Azione Secondaria</button>
-            </div>
-
-            <div class="card">
-                <h3 style="margin-bottom: 12px;">Lista Opzioni</h3>
-                <div class="list-item">
-                    <span>Opzione 1</span>
-                    <button class="btn" style="width: auto; padding: 8px 16px; min-height: auto;">Apri</button>
-                </div>
-                <div class="list-item">
-                    <span>Opzione 2</span>
-                    <button class="btn" style="width: auto; padding: 8px 16px; min-height: auto;">Apri</button>
-                </div>
-                <div class="list-item">
-                    <span>Opzione 3</span>
-                    <button class="btn" style="width: auto; padding: 8px 16px; min-height: auto;">Apri</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3 style="margin-bottom: 12px;">Impostazioni</h3>
-                <div class="input-group">
-                    <select>
-                        <option>Seleziona un'opzione</option>
-                        <option>Opzione 1</option>
-                        <option>Opzione 2</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <textarea placeholder="Note..." rows="3"></textarea>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer">
-            <p style="font-size: 12px; color: #888;">© 2024 La Mia App</p>
-        </div>
+    <button id="startButton">START</button>
+    
+    <div class="image-container" id="imageContainer">
+        <img src="https://raw.githubusercontent.com/retegramnews24/Spacehunt/main/square.PNG" 
+             alt="Spacehunt" 
+             class="centered-image"
+             id="expandingImage">
     </div>
 
+    <div class="stars-container" id="starsContainer"></div>
+    <div id="spaceship"></div>
+
     <script>
-        function handleAction() {
-            const input = document.getElementById('textInput');
-            if (input.value.trim() === '') {
-                alert('Per favore inserisci del testo');
-                return;
+        const startButton = document.getElementById('startButton');
+        const imageContainer = document.getElementById('imageContainer');
+        const expandingImage = document.getElementById('expandingImage');
+        const starsContainer = document.getElementById('starsContainer');
+        const spaceship = document.getElementById('spaceship');
+
+        let audioContext = null;
+        let isDragging = false;
+        let dragStartX, dragStartY;
+        let spaceshipX, spaceshipY;
+        let starPositions = [];
+
+        // Funzione per creare le stelle
+        function createStars() {
+            const starCount = 300;
+            const fragment = document.createDocumentFragment();
+            starPositions = [];
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // Posizione casuale
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                
+                // Dimensione casuale (1-3 pixel)
+                const size = 1 + Math.random() * 2;
+                
+                // Salva la posizione originale per il movimento
+                starPositions.push({
+                    element: star,
+                    originalLeft: left,
+                    originalTop: top
+                });
+                
+                // Applica le proprietà
+                star.style.left = left + '%';
+                star.style.top = top + '%';
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                // Animazione di scintillio casuale
+                const duration = 2 + Math.random() * 4;
+                const delay = Math.random() * 5;
+                star.style.animation = `twinkle ${duration}s infinite ${delay}s`;
+                
+                fragment.appendChild(star);
             }
-            alert('Azione eseguita: ' + input.value);
-            input.value = '';
+            
+            starsContainer.appendChild(fragment);
         }
 
-        function secondaryAction() {
-            alert('Azione secondaria eseguita!');
+        // Funzione per aggiornare la posizione delle stelle in base alla navicella
+        function updateStarPositions() {
+            // Calcola lo spostamento in base alla posizione della navicella
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            
+            const offsetX = (spaceshipX - centerX) / 50;
+            const offsetY = (spaceshipY - centerY) / 50;
+            
+            // Aggiorna ogni stella
+            starPositions.forEach(star => {
+                const newLeft = (star.originalLeft + offsetX) % 100;
+                const newTop = (star.originalTop + offsetY) % 100;
+                
+                // Se la stella esce dallo schermo, riappare dall'altra parte
+                star.element.style.left = (newLeft < 0 ? newLeft + 100 : newLeft) + '%';
+                star.element.style.top = (newTop < 0 ? newTop + 100 : newTop) + '%';
+            });
         }
+
+        // Funzione per creare e riprodurre il suono
+        function createAndPlaySound() {
+            try {
+                // Crea o riusa il contesto audio
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // Se il contesto è sospeso, riprendilo
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                // Crea gli elementi audio
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                // Configura l'oscillatore
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(330, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(1320, audioContext.currentTime + 2.5);
+                
+                // Configura il volume
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 3);
+                
+                // Connessioni
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Avvia e ferma
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 3);
+                
+            } catch (error) {
+                console.log('Audio non disponibile:', error);
+            }
+        }
+
+        // Funzione per inizializzare la navicella
+        function initSpaceship() {
+            // Posizione iniziale al centro
+            spaceshipX = window.innerWidth / 2;
+            spaceshipY = window.innerHeight / 2;
+            
+            spaceship.style.left = (spaceshipX - 20) + 'px';
+            spaceship.style.top = (spaceshipY - 20) + 'px';
+            spaceship.style.display = 'block';
+            
+            // Aggiungi event listeners per il drag
+            spaceship.addEventListener('mousedown', startDrag);
+            spaceship.addEventListener('touchstart', startDrag);
+        }
+
+        // Funzione per iniziare il drag
+        function startDrag(e) {
+            isDragging = true;
+            
+            if (e.type === 'touchstart') {
+                dragStartX = e.touches[0].clientX - spaceshipX;
+                dragStartY = e.touches[0].clientY - spaceshipY;
+                
+                document.addEventListener('touchmove', drag);
+                document.addEventListener('touchend', stopDrag);
+            } else {
+                dragStartX = e.clientX - spaceshipX;
+                dragStartY = e.clientY - spaceshipY;
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+            }
+            
+            e.preventDefault();
+        }
+
+        // Funzione per il drag
+        function drag(e) {
+            if (!isDragging) return;
+            
+            let clientX, clientY;
+            
+            if (e.type === 'touchmove') {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            // Calcola la nuova posizione
+            spaceshipX = clientX - dragStartX;
+            spaceshipY = clientY - dragStartY;
+            
+            // Mantieni la navicella dentro i bordi
+            spaceshipX = Math.max(20, Math.min(window.innerWidth - 20, spaceshipX));
+            spaceshipY = Math.max(20, Math.min(window.innerHeight - 20, spaceshipY));
+            
+            // Aggiorna la posizione della navicella
+            spaceship.style.left = (spaceshipX - 20) + 'px';
+            spaceship.style.top = (spaceshipY - 20) + 'px';
+            
+            // Aggiorna le stelle per l'effetto di movimento
+            updateStarPositions();
+        }
+
+        // Funzione per fermare il drag
+        function stopDrag() {
+            isDragging = false;
+            
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('touchend', stopDrag);
+        }
+
+        // Funzione per avviare l'esperienza
+        function startExperience() {
+            // Nasconde il pulsante
+            startButton.style.display = 'none';
+            
+            // Mostra l'immagine e avvia l'animazione
+            imageContainer.classList.add('visible');
+            expandingImage.classList.add('expanding');
+            
+            // Avvia il suono
+            createAndPlaySound();
+            
+            // Crea le stelle
+            createStars();
+            
+            // Dopo 3 secondi mostra le stelle e la navicella
+            setTimeout(() => {
+                imageContainer.classList.remove('visible');
+                starsContainer.classList.add('visible');
+                initSpaceship();
+            }, 3000);
+        }
+
+        // Inizializza le stelle all'avvio (ma nascoste)
+        createStars();
+
+        // Aggiunge l'event listener al pulsante
+        startButton.addEventListener('click', startExperience);
+        startButton.addEventListener('touchend', startExperience);
+
+        // Previene completamente lo scrolling
+        document.body.addEventListener('touchmove', function(e) {
+            if (!isDragging) e.preventDefault();
+        }, { passive: false });
 
         // Previene il zoom su doppio tap
-        let lastTouchEnd = 0;
         document.addEventListener('touchend', function (event) {
-            const now = (new Date()).getTime();
+            const now = Date.now();
             if (now - lastTouchEnd <= 300) {
                 event.preventDefault();
             }
             lastTouchEnd = now;
         }, false);
 
+        let lastTouchEnd = 0;
+
         // Adatta l'altezza al viewport
-        function adjustHeight() {
+        function adjustSize() {
             document.body.style.height = window.innerHeight + 'px';
+            document.body.style.width = window.innerWidth + 'px';
+            
+            // Se la navicella è già inizializzata, riposizionala
+            if (spaceship.style.display !== 'none') {
+                initSpaceship();
+            }
         }
 
-        window.addEventListener('resize', adjustHeight);
-        window.addEventListener('orientationchange', adjustHeight);
+        window.addEventListener('resize', adjustSize);
+        window.addEventListener('orientationchange', adjustSize);
         
-        // Inizializza l'altezza
-        adjustHeight();
+        // Inizializza
+        adjustSize();
+
+        // Pre-carica l'immagine
+        const img = new Image();
+        img.src = 'https://raw.githubusercontent.com/retegramnews24/Spacehunt/main/square.PNG';
     </script>
 </body>
 </html>
