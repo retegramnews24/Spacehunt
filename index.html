@@ -113,6 +113,51 @@
             left: 10px;
         }
 
+        /* Punteggio LCD */
+        #scoreDisplay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            color: #00ff00;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 2px solid #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            z-index: 200;
+            display: none;
+        }
+
+        /* Asteroidi */
+        .asteroid {
+            position: absolute;
+            border-radius: 50%;
+            background: #888888;
+            z-index: 50;
+        }
+
+        /* Oggetti da raccogliere */
+        .collectible {
+            position: absolute;
+            border-radius: 50%;
+            z-index: 60;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Tipi di oggetti con colori diversi */
+        .collectible.type1 { background: #ff0000; box-shadow: 0 0 10px #ff0000; } /* 10 punti */
+        .collectible.type2 { background: #00ff00; box-shadow: 0 0 10px #00ff00; } /* 20 punti */
+        .collectible.type3 { background: #0000ff; box-shadow: 0 0 10px #0000ff; } /* 50 punti */
+        .collectible.type4 { background: #ffff00; box-shadow: 0 0 10px #ffff00; } /* 100 punti */
+        .collectible.type5 { background: #ff00ff; box-shadow: 0 0 10px #ff00ff; } /* 200 punti */
+
         /* Animazioni */
         @keyframes expandAndFade {
             0% {
@@ -161,7 +206,9 @@
     <div class="stars-container" id="starsContainer">
         <!-- I 5 layer di stelle verranno creati dinamicamente -->
     </div>
+    
     <div id="spaceship"></div>
+    <div id="scoreDisplay">00000</div>
 
     <script>
         const startButton = document.getElementById('startButton');
@@ -169,6 +216,7 @@
         const expandingImage = document.getElementById('expandingImage');
         const starsContainer = document.getElementById('starsContainer');
         const spaceship = document.getElementById('spaceship');
+        const scoreDisplay = document.getElementById('scoreDisplay');
 
         let audioContext = null;
         let isDragging = false;
@@ -176,6 +224,8 @@
         let spaceshipX, spaceshipY;
         let centerX, centerY;
         let animationId = null;
+        let score = 0;
+        let gameActive = false;
         
         // Configurazione dei 5 layer di stelle
         const starLayers = [
@@ -222,11 +272,27 @@
         ];
 
         let starPositions = [];
+        let asteroids = [];
+        let collectibles = [];
+
+        // Punteggi per i diversi tipi di oggetti
+        const collectibleScores = {
+            type1: 10,
+            type2: 20,
+            type3: 50,
+            type4: 100,
+            type5: 200
+        };
 
         // Calcola il centro dello schermo
         function calculateCenter() {
             centerX = window.innerWidth / 2;
             centerY = window.innerHeight / 2;
+        }
+
+        // Aggiorna il display del punteggio
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = String(score).padStart(5, '0');
         }
 
         // Funzione per creare i layer di stelle
@@ -334,10 +400,181 @@
             });
         }
 
+        // Crea un asteroide
+        function createAsteroid() {
+            if (!gameActive) return;
+            
+            const asteroid = document.createElement('div');
+            asteroid.className = 'asteroid';
+            
+            // Dimensione casuale tra 15 e 40 pixel
+            const size = 15 + Math.random() * 25;
+            
+            // Posizione iniziale casuale ai bordi dello schermo
+            const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+            let left, top;
+            
+            switch(side) {
+                case 0: // top
+                    left = Math.random() * 100;
+                    top = -10;
+                    break;
+                case 1: // right
+                    left = 110;
+                    top = Math.random() * 100;
+                    break;
+                case 2: // bottom
+                    left = Math.random() * 100;
+                    top = 110;
+                    break;
+                case 3: // left
+                    left = -10;
+                    top = Math.random() * 100;
+                    break;
+            }
+            
+            // Velocità casuale
+            const speed = 0.5 + Math.random() * 1.5;
+            
+            // Direzione verso un punto casuale all'interno dello schermo
+            const targetX = 25 + Math.random() * 50;
+            const targetY = 25 + Math.random() * 50;
+            
+            asteroid.style.width = size + 'px';
+            asteroid.style.height = size + 'px';
+            asteroid.style.left = left + '%';
+            asteroid.style.top = top + '%';
+            asteroid.style.background = `hsl(${Math.random() * 30 + 20}, 30%, ${Math.random() * 20 + 30}%)`;
+            
+            document.body.appendChild(asteroid);
+            
+            asteroids.push({
+                element: asteroid,
+                x: left,
+                y: top,
+                size: size,
+                speed: speed,
+                targetX: targetX,
+                targetY: targetY
+            });
+        }
+
+        // Crea un oggetto da raccogliere
+        function createCollectible() {
+            if (!gameActive) return;
+            
+            const collectible = document.createElement('div');
+            collectible.className = 'collectible';
+            
+            // Tipo casuale (1-5)
+            const type = Math.floor(Math.random() * 5) + 1;
+            collectible.classList.add('type' + type);
+            
+            // Dimensione tra 8 e 15 pixel
+            const size = 8 + Math.random() * 7;
+            
+            // Posizione casuale
+            const left = 10 + Math.random() * 80;
+            const top = 10 + Math.random() * 80;
+            
+            collectible.style.width = size + 'px';
+            collectible.style.height = size + 'px';
+            collectible.style.left = left + '%';
+            collectible.style.top = top + '%';
+            
+            document.body.appendChild(collectible);
+            
+            collectibles.push({
+                element: collectible,
+                x: left,
+                y: top,
+                size: size,
+                type: 'type' + type
+            });
+        }
+
+        // Aggiorna la posizione degli asteroidi
+        function updateAsteroids() {
+            for (let i = asteroids.length - 1; i >= 0; i--) {
+                const asteroid = asteroids[i];
+                
+                // Calcola la direzione verso il target
+                const dx = asteroid.targetX - asteroid.x;
+                const dy = asteroid.targetY - asteroid.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Muovi l'asteroide
+                if (distance > 1) {
+                    asteroid.x += (dx / distance) * asteroid.speed;
+                    asteroid.y += (dy / distance) * asteroid.speed;
+                } else {
+                    // Se ha raggiunto il target, scegline uno nuovo
+                    asteroid.targetX = 25 + Math.random() * 50;
+                    asteroid.targetY = 25 + Math.random() * 50;
+                }
+                
+                // Aggiorna la posizione
+                asteroid.element.style.left = asteroid.x + '%';
+                asteroid.element.style.top = asteroid.y + '%';
+                
+                // Rimuovi se fuori dallo schermo
+                if (asteroid.x < -10 || asteroid.x > 110 || asteroid.y < -10 || asteroid.y > 110) {
+                    asteroid.element.remove();
+                    asteroids.splice(i, 1);
+                }
+            }
+        }
+
+        // Rileva collisioni
+        function checkCollisions() {
+            const shipSize = 20; // Raggio approssimativo della navicella
+            
+            // Controlla collisioni con asteroidi
+            for (let i = asteroids.length - 1; i >= 0; i--) {
+                const asteroid = asteroids[i];
+                const asteroidSize = asteroid.size / 2;
+                
+                // Distanza tra navicella e asteroide
+                const dx = (spaceshipX / window.innerWidth * 100) - asteroid.x;
+                const dy = (spaceshipY / window.innerHeight * 100) - asteroid.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < shipSize + asteroidSize) {
+                    // Collisione con asteroide
+                    playCollisionSound();
+                    asteroid.element.remove();
+                    asteroids.splice(i, 1);
+                    // Qui potresti aggiungere una logica di game over
+                }
+            }
+            
+            // Controlla collisioni con oggetti da raccogliere
+            for (let i = collectibles.length - 1; i >= 0; i--) {
+                const collectible = collectibles[i];
+                const collectibleSize = collectible.size / 2;
+                
+                // Distanza tra navicella e oggetto
+                const dx = (spaceshipX / window.innerWidth * 100) - collectible.x;
+                const dy = (spaceshipY / window.innerHeight * 100) - collectible.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < shipSize + collectibleSize) {
+                    // Raccolta oggetto
+                    playCollectSound();
+                    score += collectibleScores[collectible.type];
+                    updateScoreDisplay();
+                    collectible.element.remove();
+                    collectibles.splice(i, 1);
+                }
+            }
+        }
+
         // Loop di animazione per il movimento continuo delle stelle
-        function animateStars() {
+        function gameLoop() {
             updateStarPositions();
-            animationId = requestAnimationFrame(animateStars);
+            updateAsteroids();
+            checkCollisions();
+            animationId = requestAnimationFrame(gameLoop);
         }
 
         // Ferma l'animazione delle stelle
@@ -348,7 +585,72 @@
             }
         }
 
-        // Funzione per creare e riprodurre il suono
+        // Suono per collisione con asteroide
+        function playCollisionSound() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(100, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.2);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.3);
+                
+            } catch (error) {
+                console.log('Audio non disponibile:', error);
+            }
+        }
+
+        // Suono per raccolta oggetto
+        function playCollectSound() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // Do
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // Mi
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // Sol
+                
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.4);
+                
+            } catch (error) {
+                console.log('Audio non disponibile:', error);
+            }
+        }
+
+        // Funzione per creare e riprodurre il suono iniziale
         function createAndPlaySound() {
             try {
                 if (!audioContext) {
@@ -391,7 +693,12 @@
             spaceship.style.display = 'block';
             
             // Avvia l'animazione delle stelle
-            animateStars();
+            gameActive = true;
+            gameLoop();
+            
+            // Avvia la generazione di asteroidi e oggetti
+            setInterval(createAsteroid, 2000); // Ogni 2 secondi
+            setInterval(createCollectible, 3000); // Ogni 3 secondi
             
             // Aggiungi event listeners per il drag
             spaceship.addEventListener('mousedown', startDrag);
@@ -468,6 +775,8 @@
             setTimeout(() => {
                 imageContainer.classList.remove('visible');
                 starsContainer.classList.add('visible');
+                scoreDisplay.style.display = 'block';
+                updateScoreDisplay();
                 initSpaceship();
             }, 3000);
         }
