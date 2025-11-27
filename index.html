@@ -113,7 +113,7 @@
             left: 10px;
         }
 
-        /* Titolo Space Hunt */
+        /* Titolo Space Hunt - MODIFICATO per non andare a capo */
         #gameTitle {
             position: absolute;
             top: 20px;
@@ -134,6 +134,7 @@
             letter-spacing: 3px;
             filter: blur(0.5px);
             animation: neonPulse 2s infinite alternate;
+            white-space: nowrap; /* Impedisce di andare a capo */
         }
 
         @keyframes neonPulse {
@@ -329,8 +330,9 @@
         /* Ottimizzazioni per mobile */
         @media (max-width: 768px) {
             #gameTitle {
-                font-size: 28px;
+                font-size: 24px; /* Ridotto ulteriormente per schermi piccoli */
                 top: 10px;
+                white-space: nowrap; /* Conferma per mobile */
             }
             
             #scoreDisplay, #timer {
@@ -348,6 +350,14 @@
                 height: 15px;
                 top: 7.5px;
                 left: 7.5px;
+            }
+        }
+
+        /* Per schermi molto piccoli */
+        @media (max-width: 480px) {
+            #gameTitle {
+                font-size: 20px; /* Ancora più piccolo per schermi molto piccoli */
+                letter-spacing: 1px; /* Ridotto lo spazio tra le lettere */
             }
         }
     </style>
@@ -455,46 +465,46 @@
             }
         ];
 
-        // Configurazione dei 5 tipi di asteroidi
+        // Configurazione dei 5 tipi di asteroidi - MODIFICATA per rallentare quelli più veloci
         const asteroidTypes = [
             { 
                 type: 1, 
                 sizeMin: 10,
                 sizeMax: 30,
-                speedMin: 1.5, 
-                speedMax: 2.5, 
+                speedMin: 1.2, // Rallentato da 1.5
+                speedMax: 2.0, // Rallentato da 2.5
                 damage: 5 
             }, // Piccolo
             { 
                 type: 2, 
                 sizeMin: 15,
                 sizeMax: 45,
-                speedMin: 1.2, 
-                speedMax: 2, 
+                speedMin: 1.0, // Rallentato da 1.2
+                speedMax: 1.6, // Rallentato da 2.0
                 damage: 10 
             }, // Medio
             { 
                 type: 3, 
                 sizeMin: 20,
                 sizeMax: 60,
-                speedMin: 1, 
-                speedMax: 1.8, 
+                speedMin: 0.8, // Rallentato da 1.0
+                speedMax: 1.4, // Rallentato da 1.8
                 damage: 15 
             }, // Grande
             { 
                 type: 4, 
                 sizeMin: 25,
                 sizeMax: 75,
-                speedMin: 0.8, 
-                speedMax: 1.5, 
+                speedMin: 0.6, // Rallentato da 0.8
+                speedMax: 1.2, // Rallentato da 1.5
                 damage: 20 
             }, // Molto Grande
             { 
                 type: 5, 
                 sizeMin: 30,
                 sizeMax: 90,
-                speedMin: 0.6, 
-                speedMax: 1.2, 
+                speedMin: 0.4, // Rallentato da 0.6
+                speedMax: 1.0, // Rallentato da 1.2
                 damage: 25 
             }  // Enorme
         ];
