@@ -325,6 +325,31 @@
         * {
             touch-action: manipulation;
         }
+
+        /* Ottimizzazioni per mobile */
+        @media (max-width: 768px) {
+            #gameTitle {
+                font-size: 28px;
+                top: 10px;
+            }
+            
+            #scoreDisplay, #timer {
+                font-size: 20px;
+                top: 10px;
+            }
+            
+            #spaceship {
+                width: 30px;
+                height: 30px;
+            }
+            
+            #spaceship::after {
+                width: 15px;
+                height: 15px;
+                top: 7.5px;
+                left: 7.5px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -386,10 +411,10 @@
         let timerInterval = null;
         let elapsedTime = 0;
         
-        // Configurazione dei 5 layer di stelle
+        // Configurazione dei 5 layer di stelle - RIDOTTO per mobile
         const starLayers = [
             { 
-                count: 400, 
+                count: 150, // Ridotto da 400
                 sizeMin: 1, 
                 sizeMax: 1.5, 
                 speed: 0.05, 
@@ -397,7 +422,7 @@
                 color: '#ffffff'
             },
             { 
-                count: 300, 
+                count: 100, // Ridotto da 300
                 sizeMin: 1.2, 
                 sizeMax: 2, 
                 speed: 0.1, 
@@ -405,7 +430,7 @@
                 color: '#f0f0f0'
             },
             { 
-                count: 200, 
+                count: 80, // Ridotto da 200
                 sizeMin: 1.5, 
                 sizeMax: 2.5, 
                 speed: 0.15, 
@@ -413,14 +438,15 @@
                 color: '#e8e8e8'
             },
             { 
-                count: 150, 
+                count: 60, // Ridotto da 150
                 sizeMin: 2, 
                 sizeMax: 3, 
                 speed: 0.2, 
                 opacity: 0.9,
+                color: '#e0e0e0'
             },
             { 
-                count: 100, 
+                count: 40, // Ridotto da 100
                 sizeMin: 2.5, 
                 sizeMax: 4, 
                 speed: 0.25, 
@@ -429,91 +455,91 @@
             }
         ];
 
-        // Configurazione dei 5 tipi di asteroidi con variazione dimensionale aumentata del 100%
+        // Configurazione dei 5 tipi di asteroidi
         const asteroidTypes = [
             { 
                 type: 1, 
-                sizeMin: 10, // Ridotto da 20 a 10 (variazione +100%)
-                sizeMax: 30, // Aumentato da 20 a 30 (variazione +100%)
+                sizeMin: 10,
+                sizeMax: 30,
                 speedMin: 1.5, 
                 speedMax: 2.5, 
                 damage: 5 
             }, // Piccolo
             { 
                 type: 2, 
-                sizeMin: 15, // Ridotto da 30 a 15 (variazione +100%)
-                sizeMax: 45, // Aumentato da 30 a 45 (variazione +100%)
+                sizeMin: 15,
+                sizeMax: 45,
                 speedMin: 1.2, 
                 speedMax: 2, 
                 damage: 10 
             }, // Medio
             { 
                 type: 3, 
-                sizeMin: 20, // Ridotto da 40 a 20 (variazione +100%)
-                sizeMax: 60, // Aumentato da 40 a 60 (variazione +100%)
+                sizeMin: 20,
+                sizeMax: 60,
                 speedMin: 1, 
                 speedMax: 1.8, 
                 damage: 15 
             }, // Grande
             { 
                 type: 4, 
-                sizeMin: 25, // Ridotto da 50 a 25 (variazione +100%)
-                sizeMax: 75, // Aumentato da 50 a 75 (variazione +100%)
+                sizeMin: 25,
+                sizeMax: 75,
                 speedMin: 0.8, 
                 speedMax: 1.5, 
                 damage: 20 
             }, // Molto Grande
             { 
                 type: 5, 
-                sizeMin: 30, // Ridotto da 60 a 30 (variazione +100%)
-                sizeMax: 90, // Aumentato da 60 a 90 (variazione +100%)
+                sizeMin: 30,
+                sizeMax: 90,
                 speedMin: 0.6, 
                 speedMax: 1.2, 
                 damage: 25 
             }  // Enorme
         ];
 
-        // Configurazione per i punti colorati (collectibles) con variazione dimensionale aumentata del 100%
+        // Configurazione per i punti colorati (collectibles)
         const collectibleTypes = [
             { 
                 type: 1, 
                 score: 10, 
                 speedMin: 0.8, 
                 speedMax: 1.5,
-                sizeMin: 6,  // Ridotto da 12 a 6 (variazione +100%)
-                sizeMax: 18  // Aumentato da 12 a 18 (variazione +100%)
+                sizeMin: 6,
+                sizeMax: 18
             },
             { 
                 type: 2, 
                 score: 20, 
                 speedMin: 0.7, 
                 speedMax: 1.4,
-                sizeMin: 7,  // Ridotto da 14 a 7 (variazione +100%)
-                sizeMax: 21  // Aumentato da 14 a 21 (variazione +100%)
+                sizeMin: 7,
+                sizeMax: 21
             },
             { 
                 type: 3, 
                 score: 50, 
                 speedMin: 0.6, 
                 speedMax: 1.3,
-                sizeMin: 8,  // Ridotto da 16 a 8 (variazione +100%)
-                sizeMax: 24  // Aumentato da 16 a 24 (variazione +100%)
+                sizeMin: 8,
+                sizeMax: 24
             },
             { 
                 type: 4, 
                 score: 100, 
                 speedMin: 0.5, 
                 speedMax: 1.2,
-                sizeMin: 9,  // Ridotto da 18 a 9 (variazione +100%)
-                sizeMax: 27  // Aumentato da 18 a 27 (variazione +100%)
+                sizeMin: 9,
+                sizeMax: 27
             },
             { 
                 type: 5, 
                 score: 200, 
                 speedMin: 0.4, 
                 speedMax: 1.1,
-                sizeMin: 10, // Ridotto da 20 a 10 (variazione +100%)
-                sizeMax: 30  // Aumentato da 20 a 30 (variazione +100%)
+                sizeMin: 10,
+                sizeMax: 30
             }
         ];
 
@@ -694,8 +720,8 @@
         function createAsteroid() {
             if (!gameActive) return;
             
-            // Calcola quanti asteroidi creare in base al moltiplicatore (16 base + 300% = 64)
-            const asteroidCount = Math.floor(16 * meteorMultiplier);
+            // RIDOTTO: Calcola quanti asteroidi creare in base al moltiplicatore (8 base invece di 16)
+            const asteroidCount = Math.floor(8 * meteorMultiplier);
             
             for (let i = 0; i < asteroidCount; i++) {
                 const asteroid = document.createElement('div');
@@ -867,44 +893,32 @@
             }
         }
 
-        // Funzione per ottenere le coordinate reali di un elemento
-        function getElementBounds(element) {
-            const rect = element.getBoundingClientRect();
-            return {
-                left: rect.left,
-                right: rect.right,
-                top: rect.top,
-                bottom: rect.bottom,
-                width: rect.width,
-                height: rect.height,
-                centerX: rect.left + rect.width / 2,
-                centerY: rect.top + rect.height / 2
-            };
-        }
-
-        // Rileva collisioni con hitbox precisa basata sulle coordinate reali
+        // Funzione semplificata per rilevare collisioni (ottimizzata per mobile)
         function checkCollisions() {
             // Ottieni i bounds reali della navicella
-            const shipBounds = getElementBounds(spaceship);
+            const shipRect = spaceship.getBoundingClientRect();
+            const shipCenterX = shipRect.left + shipRect.width / 2;
+            const shipCenterY = shipRect.top + shipRect.height / 2;
+            const shipRadius = shipRect.width / 2;
             
             // Controlla collisioni con asteroidi
             for (let i = asteroids.length - 1; i >= 0; i--) {
                 const asteroid = asteroids[i];
-                const asteroidBounds = getElementBounds(asteroid.element);
+                const asteroidRect = asteroid.element.getBoundingClientRect();
+                const asteroidCenterX = asteroidRect.left + asteroidRect.width / 2;
+                const asteroidCenterY = asteroidRect.top + asteroidRect.height / 2;
+                const asteroidRadius = asteroidRect.width / 2;
                 
                 // Calcola la distanza tra i centri
-                const dx = shipBounds.centerX - asteroidBounds.centerX;
-                const dy = shipBounds.centerY - asteroidBounds.centerY;
+                const dx = shipCenterX - asteroidCenterX;
+                const dy = shipCenterY - asteroidCenterY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                // Calcola la distanza minima per la collisione (somma dei raggi)
-                const minDistance = (shipBounds.width / 2) + (asteroidBounds.width / 2);
-                
-                // Se la distanza è minore della distanza minima, c'è collisione
-                if (distance < minDistance) {
+                // Se la distanza è minore della somma dei raggi, c'è collisione
+                if (distance < shipRadius + asteroidRadius) {
                     // Collisione con asteroide - toglie punti in base alla grandezza
                     playCollisionSound();
-                    score = Math.max(0, score - asteroid.damage); // Impedisce punteggio negativo
+                    score = Math.max(0, score - asteroid.damage);
                     updateScoreDisplay();
                     asteroid.element.remove();
                     asteroids.splice(i, 1);
@@ -914,18 +928,18 @@
             // Controlla collisioni con oggetti da raccogliere
             for (let i = collectibles.length - 1; i >= 0; i--) {
                 const collectible = collectibles[i];
-                const collectibleBounds = getElementBounds(collectible.element);
+                const collectibleRect = collectible.element.getBoundingClientRect();
+                const collectibleCenterX = collectibleRect.left + collectibleRect.width / 2;
+                const collectibleCenterY = collectibleRect.top + collectibleRect.height / 2;
+                const collectibleRadius = collectibleRect.width / 2;
                 
                 // Calcola la distanza tra i centri
-                const dx = shipBounds.centerX - collectibleBounds.centerX;
-                const dy = shipBounds.centerY - collectibleBounds.centerY;
+                const dx = shipCenterX - collectibleCenterX;
+                const dy = shipCenterY - collectibleCenterY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                // Calcola la distanza minima per la collisione (somma dei raggi)
-                const minDistance = (shipBounds.width / 2) + (collectibleBounds.width / 2);
-                
-                // Se la distanza è minore della distanza minima, c'è collisione
-                if (distance < minDistance) {
+                // Se la distanza è minore della somma dei raggi, c'è collisione
+                if (distance < shipRadius + collectibleRadius) {
                     // Raccolta oggetto
                     playCollectSound();
                     score += collectible.score;
@@ -1119,8 +1133,8 @@
             gameLoop();
             
             // Avvia la generazione di asteroidi e oggetti
-            asteroidInterval = setInterval(createAsteroid, 2000); // Ogni 2 secondi (numero variabile di asteroidi)
-            collectibleInterval = setInterval(createCollectible, 3000); // Ogni 3 secondi (2 punti colorati per chiamata)
+            asteroidInterval = setInterval(createAsteroid, 2000); // Ogni 2 secondi
+            collectibleInterval = setInterval(createCollectible, 3000); // Ogni 3 secondi
             
             // Avvia il timer
             startTimer();
